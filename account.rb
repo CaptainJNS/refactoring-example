@@ -17,14 +17,10 @@ class Account
 
     # FIRST SCENARIO. IMPROVEMENT NEEDED
 
-    a = gets.chomp
-
-    if a == 'create'
-      create
-    elsif a == 'load'
-      load
-    else
-      exit
+    case gets.chomp
+    when 'create' then create
+    when 'load' then load
+    else exit
     end
   end
 

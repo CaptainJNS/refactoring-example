@@ -1,3 +1,4 @@
+require_relative './spec_helper'
 RSpec.describe Account do
   OVERRIDABLE_FILENAME = 'spec/fixtures/account.yml'.freeze
 
