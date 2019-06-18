@@ -507,6 +507,10 @@ RSpec.describe Account do
   end
 
   describe '#destroy_card' do
+    before do
+      allow(current_subject).to receive(:loop).and_yield
+    end
+
     context 'without cards' do
       it 'shows message about not active cards' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
