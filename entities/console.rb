@@ -25,7 +25,8 @@ module Console
       puts 'Enter your login'
       login = gets.chomp
       next puts('Login must present', 'Login must be longer then 4 symbols', 'Login must be shorter then 20 symbols') unless check_login(login)
-      next puts ('Such account is already exists') unless check_login_unique(login, existing_logins) if existing_logins
+
+      next puts 'Such account is already exists' if existing_logins && !check_login_unique(login, existing_logins)
 
       break login
     end
@@ -52,7 +53,7 @@ module Console
   end
 
   def sign_in
-      [login_input, password_input]
+    [login_input, password_input]
   end
 
   def first_account
@@ -61,18 +62,18 @@ module Console
   end
 
   def main_choices(name)
-      puts "\nWelcome, #{name}"
-      puts 'If you want to:'
-      puts '- show all cards - press SC'
-      puts '- create card - press CC'
-      puts '- destroy card - press DC'
-      puts '- put money on card - press PM'
-      puts '- withdraw money on card - press WM'
-      puts '- send money to another card  - press SM'
-      puts '- destroy account - press `DA`'
-      puts '- exit from account - press `exit`'
+    puts "\nWelcome, #{name}"
+    puts 'If you want to:'
+    puts '- show all cards - press SC'
+    puts '- create card - press CC'
+    puts '- destroy card - press DC'
+    puts '- put money on card - press PM'
+    puts '- withdraw money on card - press WM'
+    puts '- send money to another card  - press SM'
+    puts '- destroy account - press `DA`'
+    puts '- exit from account - press `exit`'
 
-      gets.chomp
+    gets.chomp
   end
 
   def create_card_choices
@@ -86,6 +87,7 @@ module Console
       input = gets.chomp
 
       next puts "Wrong card type. Try again!\n" unless check_card_type(input)
+
       break input
     end
   end
