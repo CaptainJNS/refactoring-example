@@ -20,11 +20,12 @@ module Console
     end
   end
 
-  def login_input(existing_logins)
+  def login_input(existing_logins = nil)
     loop do
       puts 'Enter your login'
       login = gets.chomp
-      next puts('Login must present', 'Login must be longer then 4 symbols', 'Login must be shorter then 20 symbols', 'Such account is already exists') unless check_login(login, existing_logins)
+      next puts('Login must present', 'Login must be longer then 4 symbols', 'Login must be shorter then 20 symbols') unless check_login(login)
+      next puts ('Such account is already exists') unless check_login_unique(login, existing_logins) if existing_logins
 
       break login
     end
@@ -48,5 +49,39 @@ module Console
 
       break age
     end
+  end
+
+  def sign_in
+      [login_input, password_input]
+  end
+
+  def first_account
+    puts 'There is no active accounts, do you want to be the first?[y/n]'
+    gets.chomp == 'y'
+  end
+
+  def main_choices(name)
+      puts "\nWelcome, #{name}"
+      puts 'If you want to:'
+      puts '- show all cards - press SC'
+      puts '- create card - press CC'
+      puts '- destroy card - press DC'
+      puts '- put money on card - press PM'
+      puts '- withdraw money on card - press WM'
+      puts '- send money to another card  - press SM'
+      puts '- destroy account - press `DA`'
+      puts '- exit from account - press `exit`'
+
+      gets.chomp
+  end
+
+  def create_card_choices
+      puts 'You could create one of 3 card types'
+      puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
+      puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
+      puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
+      puts '- For exit - press `exit`'
+
+      gets.chomp
   end
 end

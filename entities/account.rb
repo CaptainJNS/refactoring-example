@@ -46,44 +46,28 @@ class Account
     loop do
       return create_the_first_account unless accounts.any?
 
-      puts 'Enter your login'
-      login = gets.chomp
-      puts 'Enter your password'
-      password = gets.chomp
+      login, password = sign_in
 
       if accounts.map { |a| { login: a.login, password: a.password } }.include?({ login: login, password: password })
         a = accounts.detect { |a| login == a.login }
         @current_account = a
         break
-      else
-        puts 'There is no account with given credentials'
-        next
       end
+
+      break puts 'There is no account with given credentials'
     end
     main_menu
   end
 
   def create_the_first_account
-    puts 'There is no active accounts, do you want to be the first?[y/n]'
-    return create if gets.chomp == 'y'
+    return create if first_account
 
     console
   end
 
   def main_menu
     loop do
-      puts "\nWelcome, #{@current_account.name}"
-      puts 'If you want to:'
-      puts '- show all cards - press SC'
-      puts '- create card - press CC'
-      puts '- destroy card - press DC'
-      puts '- put money on card - press PM'
-      puts '- withdraw money on card - press WM'
-      puts '- send money to another card  - press SM'
-      puts '- destroy account - press `DA`'
-      puts '- exit from account - press `exit`'
-
-      case gets.chomp
+      case main_choices(@current_account.name)
       when 'SC' then show_cards
       when 'CC' then create_card
       when 'DC' then destroy_card
@@ -107,13 +91,7 @@ class Account
     }
 
     loop do
-      puts 'You could create one of 3 card types'
-      puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
-      puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
-      puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
-      puts '- For exit - press `exit`'
-
-      user_input = gets.chomp
+      user_input = create_card_choices
       break exit if user_input == 'exit'
 
       if cards_hash.include?(user_input)

@@ -3,8 +3,12 @@ module Validation
     /^[A-Z]/.match?(name)
   end
 
-  def check_login(login, existing_logins)
-    /^\w{4,20}$/.match?(login) && !existing_logins.include?(login)
+  def check_login(login)
+    /^\w{4,20}$/.match?(login)
+  end
+
+  def check_login_unique(login, existing_logins)
+    !existing_logins.include?(login)
   end
 
   def check_password(password)
