@@ -76,6 +76,30 @@ module Console
     gets.chomp
   end
 
+  def withdraw_card(cards)
+    loop do
+      puts 'Choose the card for withdrawing:'
+      show_cards_for_choose(cards)
+      card_choice = gets.chomp
+
+      break exit if card_choice == 'exit'
+
+      next puts "You entered wrong number!\n" unless card_choice.to_i.between?(1, cards.length)
+
+      break card_choice.to_i
+    end
+  end
+
+  def money_amount
+    loop do
+      puts 'Input the amount of money you want to withdraw'
+      user_input = gets.chomp.to_i
+      next puts 'You must input correct amount of $' unless user_input > 0
+
+      break user_input
+    end
+  end
+
   def create_card_choices
     loop do
       puts 'You could create one of 3 card types'

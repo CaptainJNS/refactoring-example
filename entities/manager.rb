@@ -2,6 +2,7 @@ class Manager
   include Taxes
   include Validation
   include Console
+  include DataUtils
 
   attr_accessor :current_account
 
@@ -38,40 +39,29 @@ class Manager
     end
   end
 
-  def withdraw_money # MINE
-    if @current_account.card.any? then loop do
-      puts 'Choose the card for withdrawing:'
-      show_cards_for_choose(@current_account.card)
+  def withdraw_money
+    if @current_account.card.any?
+      card = withdraw_card(@current_account.card)
+      return unless card
 
-      card_choice = gets.chomp
-      break if card_choice == 'exit'
+      current_card = @current_account.card[card - 1]
+      money = money_amount
 
-      card_choice = card_choice.to_i
-      next puts "You entered wrong number!\n" unless card_choice.between?(1, @current_account.card.length)
-
-      current_card = @current_account.card[card_choice - 1]
-      puts 'Input the amount of money you want to withdraw'
-      user_input = gets.chomp.to_i
-      if user_input > 0
-        money_left = current_card.balance - user_input - withdraw_tax(current_card.type, user_input)
-        if money_left > 0
-          current_card.balance = money_left
-          @current_account.card[card_choice - 1] = current_card
-          save_account(@current_account)
-          puts "Money #{user_input} withdrawed from #{current_card.number}$. Money left: #{current_card.balance}$. Tax: #{withdraw_tax(current_card.type, user_input)}$"
-        else
-          puts "You don't have enough money on card for such operation"
-          return
-        end
-      end
-    else
-      puts 'You must input correct amount of $'
-      return
-    end
+      calculate_money(current_card, card, money, withdraw_tax(current_card.type, money))
     else puts "There is no active cards!\n"
     end
-  else
-    puts "There is no active cards!\n"
+  end
+
+  def calculate_money(card, card_number, money, tax)
+    money_left = card.balance - money - tax
+
+    if money_left.positive?
+      @current_account.card[card_number - 1].balance = money_left
+      save_account(@current_account)
+      puts "Money #{money} withdrawed from #{card.number}$. Money left: #{card.balance}$. Tax: #{tax}$"
+    else
+      puts "You don't have enough money on card for such operation"
+    end
   end
 
   def put_money
@@ -214,19 +204,5 @@ class Manager
     end
     else puts "There is no active cards!\n"
     end
-  end
-
-  def load_accounts(path = @file_path)
-    if File.exist?(path)
-      YAML.load_file(path)
-    else
-      []
-    end
-  end
-
-  def save_account(account, path = @file_path)
-    accounts = load_accounts(path)
-    accounts << account
-    File.open(path, 'w') { |file| file.write accounts.to_yaml }
   end
 end

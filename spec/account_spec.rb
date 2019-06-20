@@ -105,6 +105,10 @@ RSpec.describe Account do
     )
   end
 
+  # before do
+  #   allow(current_subject).to receive(:exit)
+  # end
+
   describe '#console' do
     context 'when correct method calling' do
       after do
@@ -743,6 +747,10 @@ RSpec.describe Account do
   end
 
   describe '#withdraw_money' do
+    before do
+      allow(current_subject).to receive(:exit)
+    end
+
     context 'without cards' do
       it 'shows message about not active cards' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
@@ -758,9 +766,10 @@ RSpec.describe Account do
       context 'with correct outout' do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
-          # current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
+          # allow(current_subject).to receive(:loop).and_yield
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          # allow(current_subject).to receive(:exit)
           expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
@@ -773,7 +782,6 @@ RSpec.describe Account do
       context 'when exit if first gets is exit' do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
-          # current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
           current_subject.withdraw_money
@@ -811,10 +819,11 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+          # allow(current_subject).to receive(:loop).and_yield
         end
 
         context 'with correct output' do
-          let(:commands) { [chosen_card_number, incorrect_money_amount] }
+          let(:commands) { [chosen_card_number, incorrect_money_amount, correct_money_amount_lower_than_tax] }
 
           it do
             expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:withdraw_amount]}/).to_stdout
