@@ -19,7 +19,7 @@ module Validation
     age.to_i.between?(23, 90)
   end
 
-  # def check_card_type(type)
-  #   %w[usual capitalist virtual].include?(type)
-  # end
+  def check_card_type(type)
+    %w[usual capitalist virtual exit].include?(type)
+  end
 end

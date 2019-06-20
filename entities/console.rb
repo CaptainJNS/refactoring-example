@@ -76,12 +76,24 @@ module Console
   end
 
   def create_card_choices
+    loop do
       puts 'You could create one of 3 card types'
       puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
       puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
       puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
       puts '- For exit - press `exit`'
 
-      gets.chomp
+      input = gets.chomp
+
+      next puts "Wrong card type. Try again!\n" unless check_card_type(input)
+      break input
+    end
+  end
+
+  def show_cards_for_choose(cards)
+    cards.each_with_index do |card, index|
+      puts "- #{card.number}, #{card.type}, press #{index + 1}"
+    end
+    puts "press `exit` to exit\n"
   end
 end

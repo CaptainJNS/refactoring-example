@@ -438,11 +438,11 @@ RSpec.describe Account do
   end
 
   describe '#show_cards' do
-    let(:cards) { [{ number: 1234, type: 'a' }, { number: 5678, type: 'b' }] }
+    let(:cards) { [Card.new('usual', 1234), Card.new('capital', 5678)] }
 
     it 'display cards if there are any' do
       current_subject.instance_variable_set(:@current_account, instance_double('Account', card: cards))
-      cards.each { |card| expect(current_subject).to receive(:puts).with("- #{card[:number]}, #{card[:type]}") }
+      cards.each { |card| expect(current_subject).to receive(:puts).with("- #{card.number}, #{card.type}") }
       current_subject.show_cards
     end
 
@@ -487,9 +487,9 @@ RSpec.describe Account do
 
           expect(File.exist?(OVERRIDABLE_FILENAME)).to be true
           file_accounts = YAML.load_file(OVERRIDABLE_FILENAME)
-          expect(file_accounts.first.card.first[:type]).to eq card_info[:type]
-          expect(file_accounts.first.card.first[:balance]).to eq card_info[:balance]
-          expect(file_accounts.first.card.first[:number].length).to be 16
+          expect(file_accounts.first.card.first.type).to eq card_info[:type]
+          expect(file_accounts.first.card.first.balance).to eq card_info[:balance]
+          expect(file_accounts.first.card.first.number.length).to be 16
         end
       end
     end
@@ -520,8 +520,8 @@ RSpec.describe Account do
     end
 
     context 'with cards' do
-      let(:card_one) { { number: 1, type: 'test' } }
-      let(:card_two) { { number: 2, type: 'test2' } }
+      let(:card_one) { Card.new('usual', 1) }#{ number: 1, type: 'test' } }
+      let(:card_two) { Card.new('virtual', 2)}#{ number: 2, type: 'test2' } }
       let(:fake_cards) { [card_one, card_two] }
 
       context 'with correct outout' do
@@ -531,7 +531,7 @@ RSpec.describe Account do
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
           expect { current_subject.destroy_card }.to output(/#{COMMON_PHRASES[:if_you_want_to_delete]}/).to_stdout
           fake_cards.each_with_index do |card, i|
-            message = /- #{card[:number]}, #{card[:type]}, press #{i + 1}/
+            message = /- #{card.number}, #{card.type}, press #{i + 1}/
             expect { current_subject.destroy_card }.to output(message).to_stdout
           end
           current_subject.destroy_card
@@ -610,8 +610,8 @@ RSpec.describe Account do
     end
 
     context 'with cards' do
-      let(:card_one) { { number: 1, type: 'test' } }
-      let(:card_two) { { number: 2, type: 'test2' } }
+      let(:card_one) { Card.new('usual', 1) }
+      let(:card_two) { Card.new('virtual', 2)}
       let(:fake_cards) { [card_one, card_two] }
 
       context 'with correct outout' do
@@ -621,7 +621,7 @@ RSpec.describe Account do
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
           expect { current_subject.put_money }.to output(/#{COMMON_PHRASES[:choose_card]}/).to_stdout
           fake_cards.each_with_index do |card, i|
-            message = /- #{card[:number]}, #{card[:type]}, press #{i + 1}/
+            message = /- #{card.number}, #{card.type}, press #{i + 1}/
             expect { current_subject.put_money }.to output(message).to_stdout
           end
           current_subject.put_money
@@ -655,8 +655,8 @@ RSpec.describe Account do
       end
 
       context 'with correct input of card number' do
-        let(:card_one) { { number: 1, type: 'capitalist', balance: 50.0 } }
-        let(:card_two) { { number: 2, type: 'capitalist', balance: 100.0 } }
+        let(:card_one) { Card.new('capitalist', 1) }#{ number: 1, type: 'capitalist', balance: 50.0 } }
+        let(:card_two) { Card.new('capitalist', 1) }#{ number: 2, type: 'capitalist', balance: 100.0 } }
         let(:fake_cards) { [card_one, card_two] }
         let(:chosen_card_number) { 1 }
         let(:incorrect_money_amount) { -2 }
@@ -698,11 +698,12 @@ RSpec.describe Account do
           context 'with tax lower than amount' do
             let(:custom_cards) do
               [
-                { type: 'usual', balance: default_balance, tax: correct_money_amount_greater_than_tax * 0.02, number: 1 },
-                { type: 'capitalist', balance: default_balance, tax: 10, number: 1 },
-                { type: 'virtual', balance: default_balance, tax: 1, number: 1 }
+                Card.new('usual', 1, default_balance),
+                Card.new('capitalist', 1, default_balance),
+                Card.new('virtual', 1, default_balance)
               ]
             end
+            let(:taxes) { [correct_money_amount_greater_than_tax * 0.02, 10, 1] }
 
             let(:commands) { [chosen_card_number, correct_money_amount_greater_than_tax] }
 
@@ -711,20 +712,20 @@ RSpec.describe Account do
             end
 
             it do
-              custom_cards.each do |custom_card|
+              custom_cards.each_with_index do |custom_card, index|
                 allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
                 allow(current_subject).to receive(:accounts) { [current_subject] }
                 current_subject.instance_variable_set(:@card, [custom_card, card_one, card_two])
                 current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
-                new_balance = default_balance + correct_money_amount_greater_than_tax - custom_card[:tax]
+                new_balance = default_balance + correct_money_amount_greater_than_tax - taxes[index]
 
                 expect { current_subject.put_money }.to output(
-                  /Money #{correct_money_amount_greater_than_tax} was put on #{custom_card[:number]}. Balance: #{new_balance}. Tax: #{custom_card[:tax]}/
+                  /Money #{correct_money_amount_greater_than_tax} was put on #{custom_card.number}. Balance: #{new_balance}. Tax: #{taxes[index]}/
                 ).to_stdout
 
                 expect(File.exist?(OVERRIDABLE_FILENAME)).to be true
                 file_accounts = YAML.load_file(OVERRIDABLE_FILENAME)
-                expect(file_accounts.first.card.first[:balance]).to eq(new_balance)
+                expect(file_accounts.first.card.first.balance).to eq(new_balance)
               end
             end
           end
@@ -742,8 +743,8 @@ RSpec.describe Account do
     end
 
     context 'with cards' do
-      let(:card_one) { { number: 1, type: 'test' } }
-      let(:card_two) { { number: 2, type: 'test2' } }
+      let(:card_one) { Card.new('capitalist', 1) }
+      let(:card_two) { Card.new('usual', 2) }
       let(:fake_cards) { [card_one, card_two] }
 
       context 'with correct outout' do
@@ -753,7 +754,7 @@ RSpec.describe Account do
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
           expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
           fake_cards.each_with_index do |card, i|
-            message = /- #{card[:number]}, #{card[:type]}, press #{i + 1}/
+            message = /- #{card.number}, #{card.type}, press #{i + 1}/
             expect { current_subject.withdraw_money }.to output(message).to_stdout
           end
           current_subject.withdraw_money
@@ -787,8 +788,8 @@ RSpec.describe Account do
       end
 
       context 'with correct input of card number' do
-        let(:card_one) { { number: 1, type: 'capitalist', balance: 50.0 } }
-        let(:card_two) { { number: 2, type: 'capitalist', balance: 100.0 } }
+        let(:card_one) { Card.new('capitalist', 1, 50) }
+        let(:card_two) { Card.new('capitalist', 2, 100) }
         let(:fake_cards) { [card_one, card_two] }
         let(:chosen_card_number) { 1 }
         let(:incorrect_money_amount) { -2 }
