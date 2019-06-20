@@ -2,6 +2,10 @@ require 'yaml'
 require 'pry'
 
 class Account
+  include Taxes
+  include Validation
+  include Console
+
   attr_accessor :login, :name, :card, :password, :file_path
 
   def initialize
@@ -11,14 +15,7 @@ class Account
   end
 
   def console
-      puts 'Hello, we are RubyG bank!'
-      puts '- If you want to create account - press `create`'
-      puts '- If you want to load account - press `load`'
-      puts '- If you want to exit - press `exit`'
-
-    # FIRST SCENARIO. IMPROVEMENT NEEDED
-
-    case gets.chomp
+    case start
     when 'create' then create
     when 'load' then load
     else exit
@@ -26,17 +23,17 @@ class Account
   end
 
   def create
-    loop do
+    # loop do
       name_input
       age_input
-      login_input
+      login_input(accounts.map { |a| a.login })
       password_input
-      break unless @errors.length != 0
-      @errors.each do |e|
-        puts e
-      end
-      @errors = []
-    end
+    #   break unless @errors.length != 0
+    #   @errors.each do |e|
+    #     puts e
+    #   end
+    #   @errors = []
+    # end
 
     @card = []
     new_accounts = accounts << self
@@ -220,12 +217,12 @@ class Account
       puts 'Input the amount of money you want to withdraw'
       user_input = gets.chomp.to_i
       if user_input > 0
-        money_left = current_card[:balance] - user_input - withdraw_tax(current_card[:type], current_card[:balance], current_card[:number], user_input)
+        money_left = current_card[:balance] - user_input - withdraw_tax(current_card[:type], user_input)
         if money_left > 0
           current_card[:balance] = money_left
           @current_account.card[card_choice - 1] = current_card
           save
-          puts "Money #{user_input} withdrawed from #{current_card[:number]}$. Money left: #{current_card[:balance]}$. Tax: #{withdraw_tax(current_card[:type], current_card[:balance], current_card[:number], user_input)}$"
+          puts "Money #{user_input} withdrawed from #{current_card[:number]}$. Money left: #{current_card[:balance]}$. Tax: #{withdraw_tax(current_card[:type], user_input)}$"
         else
           puts "You don't have enough money on card for such operation"
           return
@@ -310,11 +307,11 @@ class Account
             puts 'Input the amount of money you want to put on your card'
             a2 = gets.chomp
             if a2&.to_i.to_i > 0
-              if put_tax(current_card[:type], current_card[:balance], current_card[:number], a2&.to_i.to_i) >= a2&.to_i.to_i
+              if put_tax(current_card[:type], a2&.to_i.to_i) >= a2&.to_i.to_i
                 puts 'Your tax is higher than input amount'
                 return
               else
-                new_money_amount = current_card[:balance] + a2&.to_i.to_i - put_tax(current_card[:type], current_card[:balance], current_card[:number], a2&.to_i.to_i)
+                new_money_amount = current_card[:balance] + a2&.to_i.to_i - put_tax(current_card[:type], a2&.to_i.to_i)
                 current_card[:balance] = new_money_amount
                 @current_account.card[answer&.to_i.to_i - 1] = current_card
                 new_accounts = []
@@ -326,7 +323,7 @@ class Account
                   end
                 end
                 save #Storing
-                puts "Money #{a2&.to_i.to_i} was put on #{current_card[:number]}. Balance: #{current_card[:balance]}. Tax: #{put_tax(current_card[:type], current_card[:balance], current_card[:number], a2&.to_i.to_i)}"
+                puts "Money #{a2&.to_i.to_i} was put on #{current_card[:number]}. Balance: #{current_card[:balance]}. Tax: #{put_tax(current_card[:type], a2&.to_i.to_i)}"
                 return
               end
             else
@@ -384,8 +381,8 @@ class Account
       puts 'Input the amount of money you want to withdraw'
       a3 = gets.chomp
       if a3&.to_i.to_i > 0
-        sender_balance = sender_card[:balance] - a3&.to_i.to_i - sender_tax(sender_card[:type], sender_card[:balance], sender_card[:number], a3&.to_i.to_i)
-        recipient_balance = recipient_card[:balance] + a3&.to_i.to_i - put_tax(recipient_card[:type], recipient_card[:balance], recipient_card[:number], a3&.to_i.to_i)
+        sender_balance = sender_card[:balance] - a3&.to_i.to_i - sender_tax(sender_card[:type], a3&.to_i.to_i)
+        recipient_balance = recipient_card[:balance] + a3&.to_i.to_i - put_tax(recipient_card[:type], a3&.to_i.to_i)
 
         if sender_balance < 0
           puts "You don't have enough money on card for such operation"
@@ -412,8 +409,8 @@ class Account
             end
           end
           File.open('accounts.yml', 'w') { |f| f.write new_accounts.to_yaml } #Storing
-          puts "Money #{a3&.to_i.to_i}$ was put on #{sender_card[:number]}. Balance: #{recipient_balance}. Tax: #{put_tax(sender_card[:type], sender_card[:balance], sender_card[:number], a3&.to_i.to_i)}$\n"
-          puts "Money #{a3&.to_i.to_i}$ was put on #{a2}. Balance: #{sender_balance}. Tax: #{sender_tax(sender_card[:type], sender_card[:balance], sender_card[:number], a3&.to_i.to_i)}$\n"
+          puts "Money #{a3&.to_i.to_i}$ was put on #{sender_card[:number]}. Balance: #{recipient_balance}. Tax: #{put_tax(sender_card[:type], a3&.to_i.to_i)}$\n"
+          puts "Money #{a3&.to_i.to_i}$ was put on #{a2}. Balance: #{sender_balance}. Tax: #{sender_tax(sender_card[:type], a3&.to_i.to_i)}$\n"
           break
         end
       else
@@ -439,59 +436,59 @@ class Account
 
   private
 
-  def name_input
-    puts 'Enter your name'
-    @name = gets.chomp
-    unless @name != '' && @name[0].upcase == @name[0]
-      @errors.push('Your name must not be empty and starts with first upcase letter')
-    end
-  end
+  # def name_input
+  #   puts 'Enter your name'
+  #   @name = gets.chomp
+  #   unless check_name(@name)
+  #     @errors.push('Your name must not be empty and starts with first upcase letter')
+  #   end
+  # end
 
-  def login_input
-    puts 'Enter your login'
-    @login = gets.chomp
-    if @login == ''
-      @errors.push('Login must present')
-    end
+  # def login_input
+  #   puts 'Enter your login'
+  #   @login = gets.chomp
+  #   if @login == ''
+  #     @errors.push('Login must present')
+  #   end
 
-    if @login.length < 4
-      @errors.push('Login must be longer then 4 symbols')
-    end
+  #   if @login.length < 4
+  #     @errors.push('Login must be longer then 4 symbols')
+  #   end
 
-    if @login.length > 20
-      @errors.push('Login must be shorter then 20 symbols')
-    end
+  #   if @login.length > 20
+  #     @errors.push('Login must be shorter then 20 symbols')
+  #   end
 
-    if accounts.map { |a| a.login }.include? @login
-      @errors.push('Such account is already exists')
-    end
-  end
+  #   if accounts.map { |a| a.login }.include? @login
+  #     @errors.push('Such account is already exists')
+  #   end
+  # end
 
-  def password_input
-    puts 'Enter your password'
-    @password = gets.chomp
-    if @password == ''
-      @errors.push('Password must present')
-    end
+  # def password_input
+  #   puts 'Enter your password'
+  #   @password = gets.chomp
+  #   if @password == ''
+  #     @errors.push('Password must present')
+  #   end
 
-    if @password.length < 6
-      @errors.push('Password must be longer then 6 symbols')
-    end
+  #   if @password.length < 6
+  #     @errors.push('Password must be longer then 6 symbols')
+  #   end
 
-    if @password.length > 30
-      @errors.push('Password must be shorter then 30 symbols')
-    end
-  end
+  #   if @password.length > 30
+  #     @errors.push('Password must be shorter then 30 symbols')
+  #   end
+  # end
 
-  def age_input
-    puts 'Enter your age'
-    @age = gets.chomp
-    if @age.to_i.is_a?(Integer) && @age.to_i >= 23 && @age.to_i <= 90
-      @age = @age.to_i
-    else
-      @errors.push('Your Age must be greeter then 23 and lower then 90')
-    end
-  end
+  # def age_input
+  #   puts 'Enter your age'
+  #   @age = gets.chomp
+  #   if check_age(@age)
+  #     @age = @age.to_i
+  #   else
+  #     @errors.push('Your Age must be greeter then 23 and lower then 90')
+  #   end
+  # end
 
   def accounts
     if File.exists?('accounts.yml')
@@ -501,38 +498,7 @@ class Account
     end
   end
 
-  def withdraw_tax(type, balance, number, amount)
-    if type == 'usual'
-      return amount * 0.05
-    elsif type == 'capitalist'
-      return amount * 0.04
-    elsif type == 'virtual'
-      return amount * 0.88
-    end
-    0
-  end
-
-  def put_tax(type, balance, number, amount)
-    if type == 'usual'
-      return amount * 0.02
-    elsif type == 'capitalist'
-      return 10
-    elsif type == 'virtual'
-      return 1
-    end
-    0
-  end
-
-  def sender_tax(type, balance, number, amount)
-    if type == 'usual'
-      return 20
-    elsif type == 'capitalist'
-      return amount * 0.1
-    elsif type == 'virtual'
-      return 1
-    end
-    0
-  end
+  
 
   def show_cards_for_choose
     @current_account.card.each_with_index do |card, index|

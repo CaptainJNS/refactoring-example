@@ -1,3 +1,3 @@
-require_relative 'account'
+require_relative 'dependency'
 
 Account.new.console

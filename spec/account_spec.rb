@@ -174,6 +174,7 @@ RSpec.describe Account do
         allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*all_inputs)
         allow(current_subject).to receive(:main_menu)
         allow(current_subject).to receive(:accounts).and_return([])
+        allow(current_subject).to receive(:loop).and_yield
       end
 
       context 'with name errors' do
