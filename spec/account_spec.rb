@@ -679,12 +679,14 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(*commands)
+          allow(current_subject).to receive(:loop).and_yield
         end
 
         context 'with correct output' do
           let(:commands) { [chosen_card_number, incorrect_money_amount] }
 
           it do
+            allow(current_subject).to receive(:calculate_put_money)
             expect { current_subject.put_money }.to output(/#{COMMON_PHRASES[:input_amount]}/).to_stdout
           end
         end
@@ -693,6 +695,7 @@ RSpec.describe Account do
           let(:commands) { [chosen_card_number, incorrect_money_amount] }
 
           it do
+            allow(current_subject).to receive(:calculate_put_money)
             expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:correct_amount]}/).to_stdout
           end
         end
@@ -767,9 +770,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          # allow(current_subject).to receive(:loop).and_yield
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          # allow(current_subject).to receive(:exit)
           expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/

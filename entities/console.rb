@@ -76,28 +76,32 @@ module Console
     gets.chomp
   end
 
-  def withdraw_card(cards)
+  def money_amount(operation)
+    operation_hash = {
+      withdraw_money: 'Input the amount of money you want to withdraw',
+      put_money: 'Input the amount of money you want to put on your card'
+    }
     loop do
-      puts 'Choose the card for withdrawing:'
-      show_cards_for_choose(cards)
-      card_choice = gets.chomp
-
-      break exit if card_choice == 'exit'
-
-      next puts "You entered wrong number!\n" unless card_choice.to_i.between?(1, cards.length)
-
-      break card_choice.to_i
-    end
-  end
-
-  def money_amount
-    loop do
-      puts 'Input the amount of money you want to withdraw'
+      puts operation_hash[operation]
       user_input = gets.chomp.to_i
-      next puts 'You must input correct amount of $' unless user_input > 0
+      next puts 'You must input correct amount of money' unless user_input.positive?
 
       break user_input
     end
+  end
+
+  def account_destroy
+    puts 'Are you sure you want to destroy account?[y/n]'
+    gets.chomp == 'y'
+  end
+
+  def card_destroy(cards)
+    puts 'If you want to delete:'
+    card = choose_card(cards)
+    return unless card
+
+    puts "Are you sure you want to delete #{cards[card - 1].number}?[y/n]"
+    gets.chomp == 'y' && card
   end
 
   def create_card_choices
@@ -116,10 +120,24 @@ module Console
     end
   end
 
-  def show_cards_for_choose(cards)
-    cards.each_with_index do |card, index|
-      puts "- #{card.number}, #{card.type}, press #{index + 1}"
+  def cards_show(cards)
+    return puts "There is no active cards!\n" unless cards.any?
+
+    cards.each { |card| puts "- #{card.number}, #{card.type}" }
+  end
+
+  def choose_card(cards)
+    loop do
+      cards.each_with_index { |card, index| puts "- #{card.number}, #{card.type}, press #{index + 1}" }
+      puts "press `exit` to exit\n"
+
+      user_input = gets.chomp
+      break false if user_input == 'exit'
+
+      card = user_input.to_i
+      next puts "You entered wrong number!\n" unless card.between?(1, cards.length)
+
+      break card
     end
-    puts "press `exit` to exit\n"
   end
 end
