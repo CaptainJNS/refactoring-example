@@ -126,7 +126,7 @@ class Manager
     if money_left.positive?
       @current_account.card[card_number - 1].balance = money_left
       save_account(@current_account, @file_path)
-      puts "Money #{money} withdrawed from #{card.number}$. Money left: #{card.balance}$. Tax: #{tax}$"
+      puts "Money #{money} withdrawed from #{card.number}. Money left: #{card.balance}$. Tax: #{tax}$"
     else
       puts "You don't have enough money on card for such operation"
     end

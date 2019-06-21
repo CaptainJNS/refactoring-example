@@ -1,5 +1,7 @@
 require 'yaml'
 require 'pry'
+require 'i18n'
+require_relative './entities/config/i18n'
 require_relative './entities/data_utils'
 require_relative './entities/validation'
 require_relative './entities/console'

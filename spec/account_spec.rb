@@ -16,7 +16,7 @@ RSpec.describe Account do
     'Hello, we are RubyG bank!',
     '- If you want to create account - press `create`',
     '- If you want to load account - press `load`',
-    '- If you want to exit - press `exit`'
+    " - For exit - press `exit`\n"
   ].freeze
 
   ASK_PHRASES = {
@@ -33,7 +33,7 @@ RSpec.describe Account do
     '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`',
     '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`',
     '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`',
-    '- For exit - press `exit`'
+    " - For exit - press `exit`\n"
   ].freeze
 
   # rubocop:enable Metrics/LineLength
@@ -77,7 +77,7 @@ RSpec.describe Account do
     '- withdraw money on card - press WM',
     '- send money to another card  - press SM',
     '- destroy account - press `DA`',
-    '- exit from account - press `exit`'
+    " - For exit - press `exit`\n"
   ].freeze
 
   CARDS = {

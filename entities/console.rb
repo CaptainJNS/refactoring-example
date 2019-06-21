@@ -2,10 +2,8 @@ module Console
   include Validation
 
   def start
-    puts 'Hello, we are RubyG bank!'
-    puts '- If you want to create account - press `create`'
-    puts '- If you want to load account - press `load`'
-    puts '- If you want to exit - press `exit`'
+    puts I18n.t(:greeting)
+    puts I18n.t(:exit)
 
     gets.chomp
   end
@@ -71,7 +69,7 @@ module Console
     puts '- withdraw money on card - press WM'
     puts '- send money to another card  - press SM'
     puts '- destroy account - press `DA`'
-    puts '- exit from account - press `exit`'
+    puts I18n.t(:exit)
 
     gets.chomp
   end
@@ -110,7 +108,7 @@ module Console
       puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
       puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
       puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
-      puts '- For exit - press `exit`'
+      puts I18n.t(:exit)
 
       input = gets.chomp
 
@@ -129,7 +127,7 @@ module Console
   def choose_card(cards)
     loop do
       cards.each_with_index { |card, index| puts "- #{card.number}, #{card.type}, press #{index + 1}" }
-      puts "press `exit` to exit\n"
+      puts I18n.t(:exit)
 
       user_input = gets.chomp
       break false if user_input == 'exit'
