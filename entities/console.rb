@@ -10,9 +10,9 @@ module Console
 
   def name_input
     loop do
-      puts 'Enter your name'
+      puts puts I18n.t(:enter_name)
       name = gets.chomp
-      next puts('Your name must not be empty and starts with first upcase letter') unless check_name(name)
+      next puts I18n.t(:wrong_name) unless check_name(name)
 
       break name
     end
@@ -20,11 +20,11 @@ module Console
 
   def login_input(existing_logins = nil)
     loop do
-      puts 'Enter your login'
+      puts I18n.t(:enter_login)
       login = gets.chomp
-      next puts('Login must present', 'Login must be longer then 4 symbols', 'Login must be shorter then 20 symbols') unless check_login(login)
+      next puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter)) unless check_login(login)
 
-      next puts 'Such account is already exists' if existing_logins && !check_login_unique(login, existing_logins)
+      next puts I18n.t(:login_exist) if existing_logins && !check_login_unique(login, existing_logins)
 
       break login
     end
@@ -32,9 +32,9 @@ module Console
 
   def password_input
     loop do
-      puts 'Enter your password'
+      puts I18n.t(:enter_password)
       password = gets.chomp
-      next puts('Password must present', 'Password must be longer then 6 symbols', 'Password must be shorter then 30 symbols') unless check_password(password)
+      next puts(I18n.t(:password_present), I18n.t(:password_longer), I18n.t(:password_shorter)) unless check_password(password)
 
       break password
     end
@@ -42,9 +42,9 @@ module Console
 
   def age_input
     loop do
-      puts 'Enter your age'
+      puts I18n.t(:enter_age)
       age = gets.chomp
-      next puts('Your Age must be greeter then 23 and lower then 90') unless check_age(age)
+      next puts(I18n.t(:wrong_age)) unless check_age(age)
 
       break age
     end
@@ -55,20 +55,13 @@ module Console
   end
 
   def first_account
-    puts 'There is no active accounts, do you want to be the first?[y/n]'
+    puts I18n.t(:no_accounts)
     gets.chomp == 'y'
   end
 
   def main_choices(name)
-    puts "\nWelcome, #{name}"
-    puts 'If you want to:'
-    puts '- show all cards - press SC'
-    puts '- create card - press CC'
-    puts '- destroy card - press DC'
-    puts '- put money on card - press PM'
-    puts '- withdraw money on card - press WM'
-    puts '- send money to another card  - press SM'
-    puts '- destroy account - press `DA`'
+    puts I18n.t(:welcome, name: name)
+    puts I18n.t(:main_choices)
     puts I18n.t(:exit)
 
     gets.chomp
@@ -76,50 +69,47 @@ module Console
 
   def money_amount(operation)
     operation_hash = {
-      withdraw_money: 'Input the amount of money you want to withdraw',
-      put_money: 'Input the amount of money you want to put on your card'
+      'withdraw' => I18n.t(:withdraw_money),
+      'put' => I18n.t(:put_money)
     }
     loop do
       puts operation_hash[operation]
       user_input = gets.chomp.to_i
-      next puts 'You must input correct amount of money' unless user_input.positive?
+      next puts I18n.t(:correct_amount) unless user_input.positive?
 
       break user_input
     end
   end
 
   def account_destroy
-    puts 'Are you sure you want to destroy account?[y/n]'
+    puts I18n.t(:destroy_account)
     gets.chomp == 'y'
   end
 
   def card_destroy(cards)
-    puts 'If you want to delete:'
+    puts I18n.t(:delete)
     card = choose_card(cards)
     return unless card
 
-    puts "Are you sure you want to delete #{cards[card - 1].number}?[y/n]"
+    puts I18n.t(:sure_delete, card: cards[card - 1].number)
     gets.chomp == 'y' && card
   end
 
   def create_card_choices
     loop do
-      puts 'You could create one of 3 card types'
-      puts '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`'
-      puts '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`'
-      puts '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`'
+      puts I18n.t(:create_card)
       puts I18n.t(:exit)
 
       input = gets.chomp
 
-      next puts "Wrong card type. Try again!\n" unless check_card_type(input)
+      next puts I18n.t(:wrong_card_type) unless check_card_type(input)
 
       break input
     end
   end
 
   def cards_show(cards)
-    return puts "There is no active cards!\n" unless cards.any?
+    return puts I18n.t(:no_cards) unless cards.any?
 
     cards.each { |card| puts "- #{card.number}, #{card.type}" }
   end
@@ -133,7 +123,7 @@ module Console
       break false if user_input == 'exit'
 
       card = user_input.to_i
-      next puts "You entered wrong number!\n" unless card.between?(1, cards.length)
+      next puts I18n.t(:wrong_card) unless card.between?(1, cards.length)
 
       break card
     end

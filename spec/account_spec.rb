@@ -12,12 +12,7 @@ RSpec.describe Account do
     withdraw_amount: 'Input the amount of money you want to withdraw'
   }.freeze
 
-  HELLO_PHRASES = [
-    'Hello, we are RubyG bank!',
-    '- If you want to create account - press `create`',
-    '- If you want to load account - press `load`',
-    " - For exit - press `exit`\n"
-  ].freeze
+  HELLO_PHRASES = [I18n.t(:greeting), I18n.t(:exit)].freeze
 
   ASK_PHRASES = {
     name: 'Enter your name',
@@ -26,17 +21,7 @@ RSpec.describe Account do
     age: 'Enter your age'
   }.freeze
 
-  # rubocop:disable Metrics/LineLength
-
-  CREATE_CARD_PHRASES = [
-    'You could create one of 3 card types',
-    '- Usual card. 2% tax on card INCOME. 20$ tax on SENDING money from this card. 5% tax on WITHDRAWING money. For creation this card - press `usual`',
-    '- Capitalist card. 10$ tax on card INCOME. 10% tax on SENDING money from this card. 4$ tax on WITHDRAWING money. For creation this card - press `capitalist`',
-    '- Virtual card. 1$ tax on card INCOME. 1$ tax on SENDING money from this card. 12% tax on WITHDRAWING money. For creation this card - press `virtual`',
-    " - For exit - press `exit`\n"
-  ].freeze
-
-  # rubocop:enable Metrics/LineLength
+  CREATE_CARD_PHRASES = [I18n.t(:create_card), I18n.t(:exit)].freeze
 
   ACCOUNT_VALIDATION_PHRASES = {
     name: {
@@ -68,17 +53,7 @@ RSpec.describe Account do
     tax_higher: 'Your tax is higher than input amount'
   }.freeze
 
-  MAIN_OPERATIONS_TEXTS = [
-    'If you want to:',
-    '- show all cards - press SC',
-    '- create card - press CC',
-    '- destroy card - press DC',
-    '- put money on card - press PM',
-    '- withdraw money on card - press WM',
-    '- send money to another card  - press SM',
-    '- destroy account - press `DA`',
-    " - For exit - press `exit`\n"
-  ].freeze
+  MAIN_OPERATIONS_TEXTS = [I18n.t(:main_choices), I18n.t(:exit)].freeze
 
   CARDS = {
     usual: {
@@ -359,8 +334,8 @@ RSpec.describe Account do
         'SC' => :show_cards,
         'CC' => :create_card,
         'DC' => :destroy_card,
-        'PM' => :put_money,
-        'WM' => :withdraw_money,
+        'PM' => :operate_money,
+        'WM' => :operate_money,
         # 'SM' => :send_money,
         'DA' => :destroy_account,
         'exit' => :exit
@@ -616,7 +591,7 @@ RSpec.describe Account do
     context 'without cards' do
       it 'shows message about not active cards' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
-        expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
+        expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
       end
     end
 
@@ -630,12 +605,12 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          expect { current_subject.put_money }.to output(/#{COMMON_PHRASES[:choose_card]}/).to_stdout
+          expect { current_subject.operate_money('put') }.to output(/#{COMMON_PHRASES[:choose_card]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
-            expect { current_subject.put_money }.to output(message).to_stdout
+            expect { current_subject.operate_money('put') }.to output(message).to_stdout
           end
-          current_subject.put_money
+          current_subject.operate_money('put')
         end
       end
 
@@ -644,7 +619,7 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          current_subject.put_money
+          current_subject.operate_money('put')
         end
       end
 
@@ -656,12 +631,12 @@ RSpec.describe Account do
 
         it do
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
-          expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+          expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
 
         it do
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
-          expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+          expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
       end
 
@@ -687,7 +662,7 @@ RSpec.describe Account do
 
           it do
             allow(current_subject).to receive(:calculate_put_money)
-            expect { current_subject.put_money }.to output(/#{COMMON_PHRASES[:input_amount]}/).to_stdout
+            expect { current_subject.operate_money('put') }.to output(/#{COMMON_PHRASES[:input_amount]}/).to_stdout
           end
         end
 
@@ -696,7 +671,7 @@ RSpec.describe Account do
 
           it do
             allow(current_subject).to receive(:calculate_put_money)
-            expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:correct_amount]}/).to_stdout
+            expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:correct_amount]}/).to_stdout
           end
         end
 
@@ -705,7 +680,7 @@ RSpec.describe Account do
             let(:commands) { [chosen_card_number, correct_money_amount_lower_than_tax] }
 
             it do
-              expect { current_subject.put_money }.to output(/#{ERROR_PHRASES[:tax_higher]}/).to_stdout
+              expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:tax_higher]}/).to_stdout
             end
           end
 
@@ -734,7 +709,7 @@ RSpec.describe Account do
                 current_subject.instance_variable_set(:@file_path, OVERRIDABLE_FILENAME)
                 new_balance = default_balance + correct_money_amount_greater_than_tax - taxes[index]
 
-                expect { current_subject.put_money }.to output(
+                expect { current_subject.operate_money('put') }.to output(
                   /Money #{correct_money_amount_greater_than_tax} was put on #{custom_card.number}. Balance: #{new_balance}. Tax: #{taxes[index]}/
                 ).to_stdout
 
@@ -757,7 +732,7 @@ RSpec.describe Account do
     context 'without cards' do
       it 'shows message about not active cards' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
-        expect { current_subject.withdraw_money }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
+        expect { current_subject.operate_money('withdraw') }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
       end
     end
 
@@ -771,12 +746,12 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
+          expect { current_subject.operate_money('withdraw') }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
-            expect { current_subject.withdraw_money }.to output(message).to_stdout
+            expect { current_subject.operate_money('withdraw')  }.to output(message).to_stdout
           end
-          current_subject.withdraw_money
+          current_subject.operate_money('withdraw')
         end
       end
 
@@ -785,7 +760,7 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          current_subject.withdraw_money
+          current_subject.operate_money('withdraw')
         end
       end
 
@@ -797,12 +772,12 @@ RSpec.describe Account do
 
         it do
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
-          expect { current_subject.withdraw_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+          expect { current_subject.operate_money('withdraw') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
 
         it do
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
-          expect { current_subject.withdraw_money }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
+          expect { current_subject.operate_money('withdraw') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
       end
 
@@ -827,7 +802,7 @@ RSpec.describe Account do
           let(:commands) { [chosen_card_number, incorrect_money_amount, correct_money_amount_lower_than_tax] }
 
           it do
-            expect { current_subject.withdraw_money }.to output(/#{COMMON_PHRASES[:withdraw_amount]}/).to_stdout
+            expect { current_subject.operate_money('withdraw')  }.to output(/#{COMMON_PHRASES[:withdraw_amount]}/).to_stdout
           end
         end
       end

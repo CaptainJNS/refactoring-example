@@ -21,7 +21,7 @@ Metrics/BlockLength:
     - 'spec/**/*.rb'
 
 Metrics/LineLength:
-  Max: 120
+  Max: 130
 
 Metrics/MethodLength:
   Max: 16
@@ -33,7 +33,7 @@ Metrics/ModuleLength:
   Max: 120
 
 Metrics/AbcSize:
-  Max: 16
+  Max: 20
 
 Metrics/CyclomaticComplexity:
   Enabled: false

@@ -20,6 +20,7 @@ module Validation
   end
 
   def check_card_type(type)
-    %w[usual capitalist virtual exit].include?(type)
+    [I18n.t(:usual), I18n.t(:capitalist), I18n.t(:virtual), 'exit'].include?(type)
+    # %w[usual capitalist virtual exit].include?(type)
   end
 end

@@ -32,31 +32,19 @@ class Manager
     cards_show(@current_account.card)
   end
 
-  def withdraw_money
+  def operate_money(operation)
     if @current_account.card.any?
-      puts 'Choose the card for withdrawing:'
+      puts I18n.t(operation.to_sym)
       card = choose_card(@current_account.card)
       return unless card
 
       current_card = @current_account.card[card - 1]
-      money = money_amount(__method__)
+      money = money_amount(operation)
+      tax = withdraw_put_tax(operation, current_card.type, money)
+      return calculate_withdraw_money(current_card, card, money, tax) if operation == 'withdraw'
 
-      calculate_withdraw_money(current_card, card, money, withdraw_tax(current_card.type, money))
-    else puts "There is no active cards!\n"
-    end
-  end
-
-  def put_money
-    if @current_account.card.any?
-      puts 'Choose the card for putting:'
-      card = choose_card(@current_account.card)
-      return unless card
-
-      current_card = @current_account.card[card - 1]
-      money = money_amount(__method__)
-      calculate_put_money(current_card, card, money, put_tax(current_card.type, money))
-    else
-      puts "There is no active cards!\n"
+      calculate_put_money(current_card, card, money, tax)
+    else puts I18n.t(:no_cards)
     end
   end
 
@@ -73,7 +61,7 @@ class Manager
 
     login, password = sign_in
     @current_account = accounts.detect { |account| account.login == login && account.password == password }
-    puts 'There is no account with given credentials' unless @current_account
+    puts I18n.t(:no_account) unless @current_account
     main_menu
   end
 
@@ -89,14 +77,14 @@ class Manager
       when 'SC' then show_cards
       when 'CC' then create_card
       when 'DC' then destroy_card
-      when 'PM' then put_money
-      when 'WM' then withdraw_money
+      when 'PM' then operate_money('put')
+      when 'WM' then operate_money('withdraw')
       when 'SM' then send_money
       when 'DA'
         destroy_account
         exit
       when 'exit' then break exit
-      else puts "Wrong command. Try again!\n"
+      else puts I18n.t(:wrong_command)
       end
     end
   end
@@ -110,7 +98,7 @@ class Manager
   end
 
   def destroy_card
-    return puts "There is no active cards!\n" unless @current_account.card.any?
+    return puts I18n.t(:no_cards) unless @current_account.card.any?
 
     return unless (card = card_destroy(@current_account.card))
 
@@ -126,18 +114,18 @@ class Manager
     if money_left.positive?
       @current_account.card[card_number - 1].balance = money_left
       save_account(@current_account, @file_path)
-      puts "Money #{money} withdrawed from #{card.number}. Money left: #{card.balance}$. Tax: #{tax}$"
+      puts I18n.t(:money_withdrawed, money: money, card: card.number, balance: card.balance, tax: tax)
     else
-      puts "You don't have enough money on card for such operation"
+      puts I18n.t(:not_enough_money)
     end
   end
 
   def calculate_put_money(card, card_number, money, tax)
-    return puts 'Your tax is higher than input amount' if tax >= money
+    return puts I18n.t(:higher_tax) if tax >= money
 
     new_balance = card.balance + money - tax
     @current_account.card[card_number - 1].balance = new_balance
     save_account(@current_account, @file_path)
-    puts "Money #{money} was put on #{card.number}. Balance: #{card.balance}. Tax: #{tax}"
+    puts I18n.t(:money_putted, money: money, card: card.number, balance: card.balance, tax: tax)
   end
 end
