@@ -80,10 +80,6 @@ RSpec.describe Account do
     )
   end
 
-  # before do
-  #   allow(current_subject).to receive(:exit)
-  # end
-
   describe '#console' do
     context 'when correct method calling' do
       after do
