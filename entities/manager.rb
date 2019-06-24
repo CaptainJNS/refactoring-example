@@ -79,7 +79,6 @@ class Manager
       when 'DC' then destroy_card
       when 'PM' then operate_money('put')
       when 'WM' then operate_money('withdraw')
-      when 'SM' then send_money
       when 'DA'
         destroy_account
         exit
