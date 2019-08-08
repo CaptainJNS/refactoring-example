@@ -1,22 +1,22 @@
 module Validation
-  def wrong_name?(name)
-    !/^[A-Z]/.match?(name)
+  def valid_name?(name)
+    /^[A-Z]/.match?(name)
   end
 
-  def wrong_login?(login)
-    !/^\w{4,20}$/.match?(login)
+  def valid_login?(login)
+    /^\w{4,20}$/.match?(login)
   end
 
   def login_exist?(login, existing_logins)
     existing_logins.include?(login)
   end
 
-  def wrong_password?(password)
-    !/^\w{6,30}$/.match?(password)
+  def valid_password?(password)
+    /^\w{6,30}$/.match?(password)
   end
 
-  def wrong_age?(age)
-    !age.to_i.between?(23, 90)
+  def valid_age?(age)
+    age.to_i.between?(23, 90)
   end
 
   def check_card_type(type)

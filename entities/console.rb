@@ -19,7 +19,7 @@ module Console
   def name_input
     loop do
       name = input(I18n.t(:enter_name))
-      next puts I18n.t(:wrong_name) if wrong_name?(name)
+      next puts I18n.t(:wrong_name) if !valid_name?(name)
 
       break name
     end
@@ -28,7 +28,7 @@ module Console
   def login_input(existing_logins = nil)
     loop do
       login = input(I18n.t(:enter_login))
-      next puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter)) if wrong_login?(login)
+      next puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter)) if !valid_login?(login)
 
       next puts I18n.t(:login_exist) if existing_logins && login_exist?(login, existing_logins)
 
@@ -39,7 +39,7 @@ module Console
   def password_input
     loop do
       password = input(I18n.t(:enter_password))
-      next puts(I18n.t(:password_present), I18n.t(:password_longer), I18n.t(:password_shorter)) if wrong_password?(password)
+      next puts(I18n.t(:password_present), I18n.t(:password_longer), I18n.t(:password_shorter)) if !valid_password?(password)
 
       break password
     end
@@ -48,7 +48,7 @@ module Console
   def age_input
     loop do
       age = input(I18n.t(:enter_age))
-      next puts(I18n.t(:wrong_age)) if wrong_age?(age)
+      next puts(I18n.t(:wrong_age)) if !valid_age?(age)
 
       break age
     end
@@ -81,8 +81,6 @@ module Console
     return unless card
 
     choice_is_yes?(I18n.t(:sure_delete, card: cards[card.pred].number)) && card
-    # puts I18n.t(:sure_delete, card: cards[card - 1].number)
-    # gets.chomp == 'y' && card
   end
 
   def create_card_choices

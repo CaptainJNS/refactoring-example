@@ -120,7 +120,7 @@ class Manager
 
     return puts I18n.t(:not_enough_money) unless money_left.positive?
 
-    @current_account.card[card_number.pred].balance = money_left
+    current_balance(money_left, card_number)
     save_account(@current_account, @file_path)
     puts I18n.t(:money_withdrawed, money: money, card: card.number, balance: card.balance, tax: tax)
   end
@@ -129,8 +129,12 @@ class Manager
     return puts I18n.t(:higher_tax) if tax >= money
 
     new_balance = card.balance + money - tax
-    @current_account.card[card_number.pred].balance = new_balance
+    current_balance(new_balance, card_number)
     save_account(@current_account, @file_path)
     puts I18n.t(:money_putted, money: money, card: card.number, balance: card.balance, tax: tax)
+  end
+
+  def current_balance(money, card_number)
+    @current_account.card[card_number.pred].balance = money
   end
 end

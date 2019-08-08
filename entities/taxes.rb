@@ -1,13 +1,21 @@
 module Taxes
-  CARDS_HASH = {
-    I18n.t(:usual) => [0.05, 0.02],
-    I18n.t(:capitalist) => [0.04, 10],
-    I18n.t(:virtual) => [0.88, 1]
+  WITHDRAW_TAX = {
+    I18n.t(:usual) => 0.05,
+    I18n.t(:capitalist) => 0.04,
+    I18n.t(:virtual) => 0.88
+  }.freeze
+
+  PUT_TAX = {
+    I18n.t(:usual) => 0.02,
+    I18n.t(:capitalist) => 10,
+    I18n.t(:virtual) => 1
   }.freeze
 
   def withdraw_put_tax(operation, type, amount)
-    return amount * CARDS_HASH[type][0] if operation == 'withdraw'
+    return amount * WITHDRAW_TAX[type] if operation == 'withdraw'
 
-    CARDS_HASH[type][1] * (type == I18n.t(:usual) ? amount : 1)
+    return PUT_TAX[type] * amount if type == I18n.t(:usual)
+
+    PUT_TAX[type]
   end
 end
