@@ -19,7 +19,7 @@ module Validation
     age.to_i.between?(23, 90)
   end
 
-  def check_card_type(type)
+  def valid_card_type?(type)
     [I18n.t(:usual), I18n.t(:capitalist), I18n.t(:virtual), 'exit'].include?(type)
   end
 end

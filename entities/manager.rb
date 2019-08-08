@@ -41,12 +41,14 @@ class Manager
     cards_show(@current_account.card)
   end
 
+  # Split for different methods
   def operate_money(operation)
     return puts I18n.t(:no_cards) if @current_account.card.none?
 
     puts I18n.t(operation.to_sym)
     card = choose_card(@current_account.card)
     return unless card
+    # card = card_for_operation(operation)
 
     current_card = @current_account.card[card.pred]
     money = money_amount(operation)
@@ -55,6 +57,12 @@ class Manager
 
     calculate_put_money(current_card, card, money, tax)
   end
+
+  # def card_for_operation(operation)
+  #   puts I18n.t(operation.to_sym)
+  #   card = choose_card(@current_account.card)
+  #   return card || exit
+  # end
 
   def destroy_account
     return unless choice_is_yes?(I18n.t(:destroy_account))
@@ -80,19 +88,19 @@ class Manager
   end
 
   def main_menu
-    loop do
-      case main_choices(@current_account.name)
-      when OPERATIONS[:show_cards] then show_cards
-      when OPERATIONS[:create_card] then create_card
-      when OPERATIONS[:destroy_card] then destroy_card
-      when OPERATIONS[:put_money] then operate_money('put')
-      when OPERATIONS[:withdraw_money] then operate_money('withdraw')
-      when OPERATIONS[:destroy_account]
-        destroy_account
-        exit
-      when 'exit' then break exit
-      else puts I18n.t(:wrong_command)
-      end
+    case main_choices(@current_account.name)
+    when OPERATIONS[:show_cards] then show_cards
+    when OPERATIONS[:create_card] then create_card
+    when OPERATIONS[:destroy_card] then destroy_card
+    when OPERATIONS[:put_money] then operate_money('put')
+    when OPERATIONS[:withdraw_money] then operate_money('withdraw')
+    when OPERATIONS[:destroy_account]
+      destroy_account
+      exit
+    when 'exit' then exit
+    else
+      puts I18n.t(:wrong_command)
+      main_menu
     end
   end
 

@@ -17,41 +17,36 @@ module Console
   end
 
   def name_input
-    loop do
-      name = input(I18n.t(:enter_name))
-      next puts I18n.t(:wrong_name) if !valid_name?(name)
+    name = input(I18n.t(:enter_name))
+    return name if valid_name?(name)
 
-      break name
-    end
+    puts I18n.t(:wrong_name)
+    name_input
   end
 
-  def login_input(existing_logins = nil)
-    loop do
-      login = input(I18n.t(:enter_login))
-      next puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter)) if !valid_login?(login)
+  def login_input(existing_logins = [])
+    login = input(I18n.t(:enter_login))
+    return login if valid_login?(login) && !login_exist?(login, existing_logins)
 
-      next puts I18n.t(:login_exist) if existing_logins && login_exist?(login, existing_logins)
-
-      break login
-    end
+    puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter))
+    puts I18n.t(:login_exist)
+    login_input(existing_logins)
   end
 
   def password_input
-    loop do
-      password = input(I18n.t(:enter_password))
-      next puts(I18n.t(:password_present), I18n.t(:password_longer), I18n.t(:password_shorter)) if !valid_password?(password)
+    password = input(I18n.t(:enter_password))
+    return password if valid_password?(password)
 
-      break password
-    end
+    puts(I18n.t(:password_present), I18n.t(:password_longer), I18n.t(:password_shorter))
+    password_input
   end
 
   def age_input
-    loop do
-      age = input(I18n.t(:enter_age))
-      next puts(I18n.t(:wrong_age)) if !valid_age?(age)
+    age = input(I18n.t(:enter_age))
+    return age if valid_age?(age)
 
-      break age
-    end
+    puts(I18n.t(:wrong_age))
+    age_input
   end
 
   def sign_in
@@ -61,6 +56,14 @@ module Console
   def main_choices(name)
     input(I18n.t(:welcome, name: name), I18n.t(:main_choices), I18n.t(:exit))
   end
+
+  # def money_amount(operation)
+  #   user_input = input(OPERATION_HASH[operation]).to_i
+  #   return user_input if user_input.positive?
+
+  #   puts I18n.t(:correct_amount)
+  #   money_amount(operation)
+  # end
 
   def money_amount(operation)
     loop do
@@ -84,13 +87,11 @@ module Console
   end
 
   def create_card_choices
-    loop do
-      choice = input(I18n.t(:create_card), I18n.t(:exit))
+    choice = input(I18n.t(:create_card), I18n.t(:exit))
+    return choice if valid_card_type?(choice)
 
-      next puts I18n.t(:wrong_card_type) unless check_card_type(choice)
-
-      break choice
-    end
+    puts I18n.t(:wrong_card_type)
+    create_card_choices
   end
 
   def cards_show(cards)
@@ -100,17 +101,16 @@ module Console
   end
 
   def choose_card(cards)
-    loop do
-      cards_list(cards)
+    cards_list(cards)
 
-      user_input = input(I18n.t(:exit))
-      break false if user_input == 'exit'
+    user_input = input(I18n.t(:exit))
+    return if user_input == 'exit'
 
-      card = user_input.to_i
-      next puts I18n.t(:wrong_card) unless card.between?(1, cards.length)
+    card = user_input.to_i
+    return card if card.between?(1, cards.length)
 
-      break card
-    end
+    puts I18n.t(:wrong_card) unless card.between?(1, cards.length)
+    choose_card(cards)
   end
 
   def cards_list(cards)
