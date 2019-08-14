@@ -88,7 +88,19 @@ class Manager
   end
 
   def main_menu
-    case main_choices(@current_account.name)
+    choice = main_choices(@current_account.name)
+    return exit if choice == 'exit'
+
+    unless OPERATIONS.value?(choice)
+      puts I18n.t(:wrong_command)
+      main_menu
+    end
+
+    main_menu_choices(choice)
+  end
+
+  def main_menu_choices(choice)
+    case choice
     when OPERATIONS[:show_cards] then show_cards
     when OPERATIONS[:create_card] then create_card
     when OPERATIONS[:destroy_card] then destroy_card
@@ -97,16 +109,11 @@ class Manager
     when OPERATIONS[:destroy_account]
       destroy_account
       exit
-    when 'exit' then exit
-    else
-      puts I18n.t(:wrong_command)
-      main_menu
     end
   end
 
   def create_card
     user_input = create_card_choices
-    exit if user_input == 'exit'
 
     @current_account.card << Card.new(user_input, 16.times.map { rand(10) }.join)
     save_account(@current_account, @file_path)
