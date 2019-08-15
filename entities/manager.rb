@@ -41,28 +41,29 @@ class Manager
     cards_show(@current_account.card)
   end
 
-  # Split for different methods
   def operate_money(operation)
     return puts I18n.t(:no_cards) if @current_account.card.none?
 
-    puts I18n.t(operation.to_sym)
-    card = choose_card(@current_account.card)
+    card = card_for_operation(operation)
     return unless card
-    # card = card_for_operation(operation)
 
-    current_card = @current_account.card[card.pred]
-    money = money_amount(operation)
-    tax = withdraw_put_tax(operation, current_card.type, money)
-    return calculate_withdraw_money(current_card, card, money, tax) if operation == 'withdraw'
+    return calculate_withdraw_money(*items_for_operation(card, operation)) if operation == 'withdraw'
 
-    calculate_put_money(current_card, card, money, tax)
+    calculate_put_money(*items_for_operation(card, operation))
   end
 
-  # def card_for_operation(operation)
-  #   puts I18n.t(operation.to_sym)
-  #   card = choose_card(@current_account.card)
-  #   return card || exit
-  # end
+  def card_for_operation(operation)
+    puts I18n.t(operation.to_sym)
+    card = choose_card(@current_account.card)
+    card || exit
+  end
+
+  def items_for_operation(card, operation)
+    current_card = @current_account.card[card.pred]
+    money = money_amount(operation)
+
+    [current_card, card, money, withdraw_put_tax(operation, current_card.type, money)]
+  end
 
   def destroy_account
     return unless choice_is_yes?(I18n.t(:destroy_account))

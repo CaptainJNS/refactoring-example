@@ -662,10 +662,11 @@ RSpec.describe Account do
         end
 
         context 'with correct output' do
-          let(:commands) { [chosen_card_number, incorrect_money_amount] }
+          let(:commands) { [chosen_card_number, incorrect_money_amount, 'exit'] }
 
           it do
             allow(current_subject).to receive(:calculate_put_money)
+            # allow(current_subject).to receive(:exit)
             expect { current_subject.operate_money('put') }.to output(/#{COMMON_PHRASES[:input_amount]}/).to_stdout
           end
         end
