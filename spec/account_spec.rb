@@ -526,6 +526,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
+          allow(current_subject).to receive(:exit)
           expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
           current_subject.destroy_card
         end
@@ -535,6 +536,7 @@ RSpec.describe Account do
         before do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
+          allow(current_subject).to receive(:exit)
         end
 
         it do
@@ -588,6 +590,7 @@ RSpec.describe Account do
   describe '#put_money' do
     context 'without cards' do
       it 'shows message about not active cards' do
+        allow(current_subject).to receive(:exit)
         current_subject.instance_variable_set(:@current_account, instance_double('Account', card: []))
         expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:no_active_cards]}/).to_stdout
       end
@@ -603,7 +606,7 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          # allow(current_subject).to receive(:exit)
+          allow(current_subject).to receive(:exit)
           expect { current_subject.operate_money('put') }.to output(/#{COMMON_PHRASES[:choose_card]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
@@ -618,7 +621,7 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          # allow(current_subject).to receive(:exit)
+          allow(current_subject).to receive(:exit)
           current_subject.operate_money('put')
         end
       end
@@ -627,6 +630,7 @@ RSpec.describe Account do
         before do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
+          allow(current_subject).to receive(:exit)
         end
 
         it do

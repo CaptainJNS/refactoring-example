@@ -107,7 +107,7 @@ module Console
     cards_list(cards)
 
     user_input = input(I18n.t(:exit))
-    # return if user_input == 'exit'
+    return if user_input == 'exit'
 
     card = user_input.to_i
     return card if card.between?(1, cards.length)
@@ -118,9 +118,5 @@ module Console
 
   def cards_list(cards)
     cards.each_with_index { |card, index| puts "- #{card.number}, #{card.type}, press #{index.next}" }
-  end
-
-  def close_app
-    exit
   end
 end
