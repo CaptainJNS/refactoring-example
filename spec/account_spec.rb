@@ -662,7 +662,7 @@ RSpec.describe Account do
         end
 
         context 'with correct output' do
-          let(:commands) { [chosen_card_number, incorrect_money_amount, 'exit'] }
+          let(:commands) { [chosen_card_number, incorrect_money_amount, correct_money_amount_lower_than_tax] }
 
           it do
             allow(current_subject).to receive(:calculate_put_money)
@@ -672,7 +672,7 @@ RSpec.describe Account do
         end
 
         context 'with amount lower then 0' do
-          let(:commands) { [chosen_card_number, incorrect_money_amount] }
+          let(:commands) { [chosen_card_number, incorrect_money_amount, correct_money_amount_lower_than_tax] }
 
           it do
             allow(current_subject).to receive(:calculate_put_money)

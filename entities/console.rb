@@ -60,22 +60,22 @@ module Console
     input(I18n.t(:welcome, name: name), I18n.t(:main_choices), I18n.t(:exit))
   end
 
-  # def money_amount(operation)
-  #   user_input = input(OPERATION_HASH[operation]).to_i
-  #   return user_input if user_input.positive?
-
-  #   puts I18n.t(:correct_amount)
-  #   money_amount(operation)
-  # end
-
   def money_amount(operation)
-    loop do
-      user_input = input(OPERATION_HASH[operation]).to_i
-      next puts I18n.t(:correct_amount) unless user_input.positive?
+    user_input = input(OPERATION_HASH[operation]).to_i
+    return user_input if user_input.positive?
 
-      break user_input
-    end
+    puts I18n.t(:correct_amount)
+    money_amount(operation)
   end
+
+  # def money_amount(operation)
+  #   loop do
+  #     user_input = input(OPERATION_HASH[operation]).to_i
+  #     next puts I18n.t(:correct_amount) unless user_input.positive?
+
+  #     break user_input
+  #   end
+  # end
 
   def choice_is_yes?(message)
     input(message) == 'y'
