@@ -341,7 +341,6 @@ RSpec.describe Account do
     context 'with correct outout' do
       it do
         allow(current_subject).to receive(:show_cards)
-        # allow(current_subject).to receive(:cards_show)
         allow(current_subject).to receive(:exit)
         allow(current_subject).to receive_message_chain(:gets, :chomp).and_return('SC', 'exit')
         current_subject.instance_variable_set(:@current_account, instance_double('Account', name: name))
@@ -512,8 +511,8 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
-          allow(current_subject).to receive(:exit)
+          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
+          # allow(current_subject).to receive(:exit)
           expect { current_subject.destroy_card }.to output(/#{COMMON_PHRASES[:if_you_want_to_delete]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
@@ -528,7 +527,7 @@ RSpec.describe Account do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
           allow(current_subject).to receive(:exit)
-          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
           current_subject.destroy_card
         end
       end
@@ -541,12 +540,12 @@ RSpec.describe Account do
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'cancel')
           expect { current_subject.destroy_card }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'cancel')
           allow(current_subject).to receive(:exit)
           expect { current_subject.destroy_card }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
@@ -606,7 +605,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
           allow(current_subject).to receive(:exit)
           expect { current_subject.operate_money('put') }.to output(/#{COMMON_PHRASES[:choose_card]}/).to_stdout
           fake_cards.each_with_index do |card, i|
@@ -621,7 +620,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
           allow(current_subject).to receive(:exit)
           current_subject.operate_money('put')
         end
@@ -635,12 +634,12 @@ RSpec.describe Account do
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'cancel')
           expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'cancel')
           expect { current_subject.operate_money('put') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
       end
@@ -751,7 +750,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          allow(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
           expect { current_subject.operate_money('withdraw') }.to output(/#{COMMON_PHRASES[:choose_card_withdrawing]}/).to_stdout
           fake_cards.each_with_index do |card, i|
             message = /- #{card.number}, #{card.type}, press #{i + 1}/
@@ -765,7 +764,7 @@ RSpec.describe Account do
         it do
           current_test_account.instance_variable_set(:@card, fake_cards)
           current_subject.instance_variable_set(:@current_account, current_test_account)
-          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'exit' }
+          expect(current_subject).to receive_message_chain(:gets, :chomp) { 'cancel' }
           current_subject.operate_money('withdraw')
         end
       end
@@ -777,12 +776,12 @@ RSpec.describe Account do
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(fake_cards.length + 1, 'cancel')
           expect { current_subject.operate_money('withdraw') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
 
         it do
-          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'exit')
+          allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(-1, 'cancel')
           expect { current_subject.operate_money('withdraw') }.to output(/#{ERROR_PHRASES[:wrong_number]}/).to_stdout
         end
       end

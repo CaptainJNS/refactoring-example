@@ -75,7 +75,7 @@ module Console
     cards_list(cards)
 
     user_input = input(I18n.t(:exit))
-    return if user_input == 'exit'
+    return if user_input == 'cancel'
 
     card = user_input.to_i
     return card if card.between?(1, cards.length)
