@@ -15,10 +15,6 @@ module Console
     choice
   end
 
-  def start
-    input(I18n.t(:greeting), I18n.t(:exit))
-  end
-
   def name_input
     name = input(I18n.t(:enter_name))
     return name if valid_name?(name)
@@ -29,10 +25,9 @@ module Console
 
   def login_input(existing_logins = [])
     login = input(I18n.t(:enter_login))
-    return login if valid_login?(login) && !login_exist?(login, existing_logins)
+    return login if valid_login?(login, existing_logins)
 
-    puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter))
-    puts I18n.t(:login_exist)
+    puts(I18n.t(:login_present), I18n.t(:login_longer), I18n.t(:login_shorter), I18n.t(:login_exist))
     login_input(existing_logins)
   end
 
@@ -68,25 +63,12 @@ module Console
     money_amount(operation)
   end
 
-  # def money_amount(operation)
-  #   loop do
-  #     user_input = input(OPERATION_HASH[operation]).to_i
-  #     next puts I18n.t(:correct_amount) unless user_input.positive?
-
-  #     break user_input
-  #   end
-  # end
-
-  def choice_is_yes?(message)
-    input(message) == 'y'
-  end
-
   def card_destroy?(cards)
     puts I18n.t(:delete)
     card = choose_card(cards)
     return unless card
 
-    choice_is_yes?(I18n.t(:sure_delete, card: cards[card.pred].number)) && card
+    choice_is_yes?(input(I18n.t(:sure_delete, card: cards[card.pred].number))) && card
   end
 
   def create_card_choices

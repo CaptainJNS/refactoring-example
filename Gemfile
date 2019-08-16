@@ -5,7 +5,6 @@ source 'https://rubygems.org'
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 group :development do
-  # gem 'i18n', git: 'https://github.com/ruby-i18n/i18n'
   gem 'fasterer'
   gem 'i18n'
   gem 'pry'

@@ -341,6 +341,7 @@ RSpec.describe Account do
     context 'with correct outout' do
       it do
         allow(current_subject).to receive(:show_cards)
+        # allow(current_subject).to receive(:cards_show)
         allow(current_subject).to receive(:exit)
         allow(current_subject).to receive_message_chain(:gets, :chomp).and_return('SC', 'exit')
         current_subject.instance_variable_set(:@current_account, instance_double('Account', name: name))

@@ -20,7 +20,7 @@ class Manager
   end
 
   def console
-    case start
+    case input(I18n.t(:greeting), I18n.t(:exit))
     when 'create' then create
     when 'load' then load
     else exit
@@ -54,8 +54,7 @@ class Manager
 
   def card_for_operation(operation)
     puts I18n.t(operation.to_sym)
-    card = choose_card(@current_account.card)
-    card || exit
+    choose_card(@current_account.card) || exit
   end
 
   def items_for_operation(card, operation)
@@ -66,7 +65,7 @@ class Manager
   end
 
   def destroy_account
-    return unless choice_is_yes?(I18n.t(:destroy_account))
+    return unless choice_is_yes?(input(I18n.t(:destroy_account)))
 
     new_accounts = load_accounts.delete_if { |account| account.login == @current_account.login }
     save_accounts(new_accounts, @file_path)
@@ -83,7 +82,7 @@ class Manager
   end
 
   def create_the_first_account
-    return create if choice_is_yes?(I18n.t(:no_accounts))
+    return create if choice_is_yes?(input(I18n.t(:no_accounts)))
 
     console
   end
@@ -92,12 +91,10 @@ class Manager
     choice = main_choices(@current_account.name)
     return exit if choice == 'exit'
 
-    unless OPERATIONS.value?(choice)
-      puts I18n.t(:wrong_command)
-      main_menu
-    end
+    return main_menu_choices(choice) if OPERATIONS.value?(choice)
 
-    main_menu_choices(choice)
+    puts I18n.t(:wrong_command)
+    main_menu
   end
 
   def main_menu_choices(choice)
