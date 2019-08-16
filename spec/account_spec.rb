@@ -333,8 +333,7 @@ RSpec.describe Account do
         'PM' => :operate_money,
         'WM' => :operate_money,
         # 'SM' => :send_money,
-        'DA' => :destroy_account,
-        'exit' => :exit
+        'DA' => :destroy_account
       }
     end
 
@@ -358,7 +357,6 @@ RSpec.describe Account do
       it 'calls specific methods on predefined commands' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', name: name))
         allow(current_subject).to receive(:exit)
-
         commands.each do |command, method_name|
           expect(current_subject).to receive(method_name)
           allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(command, 'exit')
@@ -369,7 +367,7 @@ RSpec.describe Account do
       it 'outputs incorrect message on undefined command' do
         current_subject.instance_variable_set(:@current_account, instance_double('Account', name: name))
         allow(current_subject).to receive(:exit)
-        allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(undefined_command, 'exit')
+        allow(current_subject).to receive_message_chain(:gets, :chomp).and_return(undefined_command, 'DA')
         expect { current_subject.main_menu }.to output(/#{ERROR_PHRASES[:wrong_command]}/).to_stdout
       end
     end

@@ -92,7 +92,6 @@ class Manager
 
   def main_menu
     choice = main_choices(@current_account.name)
-    return exit if choice == 'exit'
 
     return main_menu_choices(choice) if OPERATIONS.value?(choice)
 
