@@ -38,7 +38,10 @@ class Manager
   end
 
   def show_cards
-    cards_show(@current_account.card)
+    cards = @current_account.card
+    return puts I18n.t(:no_cards) if cards.none?
+
+    cards.each { |card| puts "- #{card.number}, #{card.type}" }
   end
 
   def operate_money(operation)
@@ -120,7 +123,9 @@ class Manager
   def destroy_card
     return puts I18n.t(:no_cards) unless @current_account.card.any?
 
-    return unless (card = card_destroy?(@current_account.card))
+    puts I18n.t(:delete)
+    card = choose_card(@current_account.card)
+    return unless card && choice_is_yes?(input(I18n.t(:sure_delete, card: @current_account.card[card.pred].number)))
 
     @current_account.card.delete_at(card.pred)
     save_account(@current_account, @file_path)

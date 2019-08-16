@@ -63,26 +63,12 @@ module Console
     money_amount(operation)
   end
 
-  def card_destroy?(cards)
-    puts I18n.t(:delete)
-    card = choose_card(cards)
-    return unless card
-
-    choice_is_yes?(input(I18n.t(:sure_delete, card: cards[card.pred].number))) && card
-  end
-
   def create_card_choices
     choice = input(I18n.t(:create_card), I18n.t(:exit))
     return choice if valid_card_type?(choice)
 
     puts I18n.t(:wrong_card_type)
     create_card_choices
-  end
-
-  def cards_show(cards)
-    return puts I18n.t(:no_cards) if cards.none?
-
-    cards.each { |card| puts "- #{card.number}, #{card.type}" }
   end
 
   def choose_card(cards)
